@@ -1,0 +1,14 @@
+{{{
+  exports({ to: app.configPath('stats.ts') })
+}}}
+import { defineConfig } from 'adonisjs-stats'
+
+const statsConfig = defineConfig({
+  /**
+   * Custom classifier classes (full import paths)
+   * Example: ['#app/classifiers/custom_classifier']
+   */
+  customClassifiers: [] as string[],
+})
+
+export default statsConfig

@@ -12,6 +12,16 @@
 |
 */
 
-import ConfigureCommand from '@adonisjs/core/commands/configure'
+import type ConfigureCommand from '@adonisjs/core/commands/configure'
 
-export async function configure(_command: ConfigureCommand) {}
+import { stubsRoot } from './stubs/main.js'
+
+export async function configure(command: ConfigureCommand) {
+  const codemods = await command.createCodemods()
+
+  await codemods.updateRcFile((rcFile) => {
+    rcFile.addCommand('adonisjs-stats/commands')
+  })
+
+  await codemods.makeUsingStub(stubsRoot, 'config/stats.stub', {})
+}
