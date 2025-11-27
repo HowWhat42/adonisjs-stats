@@ -1,119 +1,162 @@
-# AdonisJS package starter kit
+# AdonisJS Stats
 
-> A boilerplate for creating AdonisJS packages
+📈 Get insights about your AdonisJS project.
 
-This repo provides you with a starting point for creating AdonisJS packages. Of course, you can create a package from scratch with your folder structure and workflow. However, using this starter kit can speed up the process, as you have fewer decisions to make.
+AdonisJS Stats analyzes your codebase and provides detailed statistics about your project's structure, including counts for classes, methods, lines of code, and routes.
 
-## Setup
+## Installation
 
-- Clone the repo on your computer, or use `giget` to download this repo without the Git history.
-  ```sh
-  npx giget@latest gh:adonisjs/pkg-starter-kit
-  ```
-- Install dependencies.
-- Update the `package.json` file and define the `name`, `description`, `keywords`, and `author` properties.
-- The repo is configured with an MIT license. Feel free to change that if you are not publishing under the MIT license.
+Install the package using npm or your preferred package manager:
 
-## Folder structure
-
-The starter kit mimics the folder structure of the official packages. Feel free to rename files and folders as per your requirements.
-
-```
-├── providers
-├── src
-├── bin
-├── stubs
-├── configure.ts
-├── index.ts
-├── LICENSE.md
-├── package.json
-├── README.md
-├── tsconfig.json
-├── tsnode.esm.js
+```bash
+node ace add adonisjs-stats
 ```
 
-- The `configure.ts` file exports the `configure` hook to configure the package using the `node ace configure` command.
-- The `index.ts` file is the main entry point of the package.
-- The `tsnode.esm.js` file runs TypeScript code using TS-Node + SWC. Please read the code comment in this file to learn more.
-- The `bin` directory contains the entry point file to run Japa tests.
-- Learn more about [the `providers` directory](./providers/README.md).
-- Learn more about [the `src` directory](./src/README.md).
-- Learn more about [the `stubs` directory](./stubs/README.md).
+## Usage
 
-### File system naming convention
+After installing, you can generate statistics by running the following Ace command:
 
-We use `snake_case` naming conventions for the file system. The rule is enforced using ESLint. However, turn off the rule and use your preferred naming conventions.
-
-## Peer dependencies
-
-The starter kit has a peer dependency on `@adonisjs/core@6`. Since you are creating a package for AdonisJS, you must make it against a specific version of the framework core.
-
-If your package needs Lucid to be functional, you may install `@adonisjs/lucid` as a development dependency and add it to the list of `peerDependencies`.
-
-As a rule of thumb, packages installed in the user application should be part of the `peerDependencies` of your package and not the main dependency.
-
-For example, if you install `@adonisjs/core` as a main dependency, then essentially, you are importing a separate copy of `@adonisjs/core` and not sharing the one from the user application. Here is a great article explaining [peer dependencies](https://blog.bitsrc.io/understanding-peer-dependencies-in-javascript-dbdb4ab5a7be).
-
-## Published files
-
-Instead of publishing your repo's source code to npm, you must cherry-pick files and folders to publish only the required files.
-
-The cherry-picking uses the `files` property inside the `package.json` file. By default, we publish the following files and folders.
-
-```json
-{
-  "files": ["build/src", "build/providers", "build/stubs", "build/index.d.ts", "build/index.js", "build/configure.d.ts", "build/configure.js"]
-}
+```bash
+node ace stats
 ```
 
-If you create additional folders or files, mention them inside the `files` array.
+The statistics are also available as JSON:
 
-## Exports
+```bash
+node ace stats --json
+```
 
-[Node.js Subpath exports](https://nodejs.org/api/packages.html#subpath-exports) allows you to define the exports of your package regardless of the folder structure. This starter kit defines the following exports.
+For a more detailed report showing which classes have been grouped into which component, use the `--verbose` option:
 
-```json
-{
-  "exports": {
-    ".": "./build/index.js",
-    "./types": "./build/src/types.js"
+```bash
+node ace stats --verbose
+```
+
+The verbose option is available for the JSON format as well:
+
+```bash
+node ace stats --json --verbose
+```
+
+## Output Example
+
+```
+Name                 |    Classes |    Methods | Methods/Class |      LoC |     LLoC | LLoC/Method
+--------------------|------------|------------|---------------|----------|----------|-------------
+Commands            |          4 |         14 |          3.50 |      382 |       99 |         7.07
+Controllers         |         30 |         83 |          2.77 |     1483 |      486 |         5.86
+Events              |          3 |          7 |          2.33 |      175 |       60 |         8.57
+Exceptions          |          6 |         13 |          2.17 |      310 |       82 |         6.31
+Listeners           |          8 |          4 |          0.50 |      199 |       35 |         8.75
+Middlewares         |         47 |         94 |          2.00 |     1788 |      492 |         5.23
+Models              |         11 |         68 |          6.18 |      930 |      203 |         2.99
+Services            |          3 |         12 |          4.00 |      212 |       34 |         2.83
+Tests               |          6 |         36 |          6.00 |      533 |       65 |         1.81
+Validators          |          7 |         16 |          2.29 |      283 |       38 |         2.38
+Other               |         18 |         44 |          2.44 |     1421 |      382 |         8.68
+Total               |        203 |        602 |          2.97 |    11964 |     3359 |         5.58
+
+Code LLoC: 2088 • Test LLoC: 1271 • Code/Test Ratio: 1:0.6 • Routes: 169
+```
+
+## How does this package detect certain AdonisJS Components?
+
+The package scans TypeScript files in your project using `ts-morph` and applies classifiers to determine which AdonisJS component each class represents.
+
+| Component    | Classification                                                                 |
+|--------------|--------------------------------------------------------------------------------|
+| Controllers  | Files in `app/controllers/` directory or files ending with `controller.ts`    |
+| Services     | Files in `app/services/` directory or files ending with `service.ts`          |
+| Models       | Files in `app/models/` directory or files ending with `model.ts`              |
+| Middleware   | Files in `app/middleware/` directory or files ending with `middleware.ts`     |
+| Validators   | Files in `app/validators/` directory or files ending with `validator.ts`       |
+| Commands     | Files in `app/commands/` directory or files ending with `command.ts`           |
+| Listeners    | Files in `app/listeners/` directory or files ending with `listener.ts`        |
+| Events       | Files in `app/events/` directory or files ending with `event.ts`              |
+| Exceptions   | Files in `app/exceptions/` directory or files ending with `exception.ts`       |
+| Tests        | Files in `tests/` directory or files ending with `.test.ts` or `.spec.ts`     |
+
+## Configuration
+
+You can configure the package by publishing the config file:
+
+```bash
+node ace configure adonisjs-stats
+```
+
+This will create a `config/stats.ts` file where you can customize the behavior:
+
+```typescript
+import { defineConfig } from 'adonisjs-stats'
+
+const statsConfig = defineConfig({
+  /**
+   * Custom classifier classes (full import paths)
+   * Example: ['#app/classifiers/custom_classifier']
+   */
+  customClassifiers: [] as string[],
+})
+
+export default statsConfig
+```
+
+## Create your own Classifiers
+
+If your application has its own components you would like to see in `adonisjs-stats`, you can create your own classifiers. Create a classifier by implementing the `Classifier` interface and adding it to the `customClassifiers` config array.
+
+### Example: Repository Classifier
+
+```typescript
+// app/classifiers/repository_classifier.ts
+import type { Classifier } from 'adonisjs-stats/types'
+import type { FileAnalysis } from 'adonisjs-stats/types'
+
+export class RepositoryClassifier implements Classifier {
+  name(): string {
+    return 'Repositories'
+  }
+
+  satisfies(filePath: string, analysis: FileAnalysis): boolean {
+    return (
+      (filePath.includes('/repositories/') || filePath.includes('\\repositories\\')) &&
+      analysis.className !== null
+    )
+  }
+
+  countsTowardsApplicationCode(): boolean {
+    return true
+  }
+
+  countsTowardsTests(): boolean {
+    return false
   }
 }
 ```
 
-- The dot `.` export is the main export.
-- The `./types` exports all the types defined inside the `./build/src/types.js` file (the compiled output).
+Then add it to your config:
 
-Feel free to change the exports as per your requirements.
+```typescript
+// config/stats.ts
+import { defineConfig } from 'adonisjs-stats'
+import { RepositoryClassifier } from '#app/classifiers/repository_classifier'
 
-## Testing
+const statsConfig = defineConfig({
+  customClassifiers: ['#app/classifiers/repository_classifier'],
+})
 
-We configure the [Japa test runner](https://japa.dev/) with this starter kit. Japa is used in AdonisJS applications as well. Just run one of the following commands to execute tests.
+export default statsConfig
+```
 
-- `npm run test`: This command will first lint the code using ESlint and then run tests and report the test coverage using [c8](https://github.com/bcoe/c8).
-- `npm run quick:test`: Runs only the tests without linting or coverage reporting.
+## Statistics Explained
 
-The starter kit also has a Github workflow file to run tests using Github Actions. The tests are executed against `Node.js 20.x` and `Node.js 21.x` versions on both Linux and Windows. Feel free to edit the workflow file in the `.github/workflows` directory.
+- **Classes**: Number of class declarations found
+- **Methods**: Total number of methods in all classes
+- **Methods/Class**: Average number of methods per class
+- **LoC**: Lines of Code (total lines including comments and empty lines)
+- **LLoC**: Logical Lines of Code (excluding comments and empty lines)
+- **LLoC/Method**: Average logical lines of code per method
+- **Routes**: Total number of registered routes in your application
 
-## TypeScript workflow
+## License
 
-- The starter kit uses [tsc](https://www.typescriptlang.org/docs/handbook/compiler-options.html) for compiling the TypeScript to JavaScript when publishing the package.
-- [TS-Node](https://typestrong.org/ts-node/) and [SWC](https://swc.rs/) are used to run tests without compiling the source code.
-- The `tsconfig.json` file is extended from [`@adonisjs/tsconfig`](https://github.com/adonisjs/tooling-config/tree/main/packages/typescript-config) and uses the `NodeNext` module system. Meaning the packages are written using ES modules.
-- You can perform type checking without compiling the source code using the `npm run type check` script.
-
-Feel free to explore the `tsconfig.json` file for all the configured options.
-
-## ESLint and Prettier setup
-
-The starter kit configures ESLint and Prettier
-using our [shared config](https://github.com/adonisjs/tooling-config/tree/main/packages).
-ESLint configuration is stored within the `eslint.config.js` file.
-Prettier configuration is stored within the `package.json` file.
-Feel free to change the configuration, use custom plugins, or remove both tools altogether.
-
-## Using Stale bot
-
-The [Stale bot](https://github.com/apps/stale) is a Github application that automatically marks issues and PRs as stale and closes after a specific duration of inactivity.
-
-Feel free to delete the `.github/stale.yml` and `.github/lock.yml` files if you decide not to use the Stale bot.
+MIT
