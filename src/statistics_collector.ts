@@ -11,7 +11,6 @@ import { ExceptionClassifier } from './classifiers/exception_classifier.js'
 import { TestClassifier } from './classifiers/test_classifier.js'
 import type { Classifier } from './classifiers/base_classifier.js'
 import type { ComponentStats, StatisticsSummary, ClassifiedFile, StatsConfig } from './types.js'
-import { RouteJSON } from '@adonisjs/core/types/http'
 import { Project } from 'ts-morph'
 /**
  * Collects and aggregates statistics from the codebase
@@ -19,10 +18,10 @@ import { Project } from 'ts-morph'
 export class StatisticsCollector {
   private classifiers: Classifier[] = []
 
-  #routes: Array<RouteJSON>
+  #routes: Array<any>
   #project: Project
   #config: StatsConfig
-  constructor(options: { routes: Array<RouteJSON>; project: Project; config: StatsConfig }) {
+  constructor(options: { routes: Array<any>; project: Project; config: StatsConfig }) {
     this.#routes = options.routes
     this.#project = options.project
     this.#config = options.config
