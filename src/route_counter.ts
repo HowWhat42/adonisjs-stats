@@ -85,7 +85,6 @@ export class RouteCounter {
 
       for (const pattern of routePatterns) {
         const matches = root.findAll(pattern)
-        console.log(matches.map((match) => match.text()))
         for (const match of matches) {
           // Get the method name from the match
           const methodCall = match.text()
