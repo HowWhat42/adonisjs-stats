@@ -15,7 +15,7 @@ export class ExceptionClassifier implements Classifier {
       filePath.includes('/exceptions/') || filePath.includes('\\exceptions\\')
     const endsWithException = filePath.toLowerCase().endsWith('exception.ts')
 
-    return (isInExceptionsDir || endsWithException) && analysis.className !== null
+    return (isInExceptionsDir || endsWithException) && analysis.classNames.length > 0
   }
 
   countsTowardsApplicationCode(): boolean {

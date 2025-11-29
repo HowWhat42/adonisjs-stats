@@ -15,7 +15,7 @@ export class MiddlewareClassifier implements Classifier {
       filePath.includes('/middleware/') || filePath.includes('\\middleware\\')
     const endsWithMiddleware = filePath.toLowerCase().endsWith('middleware.ts')
 
-    return (isInMiddlewareDir || endsWithMiddleware) && analysis.className !== null
+    return (isInMiddlewareDir || endsWithMiddleware) && analysis.classNames.length > 0
   }
 
   countsTowardsApplicationCode(): boolean {

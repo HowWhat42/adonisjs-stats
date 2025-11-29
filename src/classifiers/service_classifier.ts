@@ -14,7 +14,7 @@ export class ServiceClassifier implements Classifier {
     const isInServicesDir = filePath.includes('/services/') || filePath.includes('\\services\\')
     const endsWithService = filePath.toLowerCase().endsWith('service.ts')
 
-    return (isInServicesDir || endsWithService) && analysis.className !== null
+    return (isInServicesDir || endsWithService) && analysis.classNames.length > 0
   }
 
   countsTowardsApplicationCode(): boolean {

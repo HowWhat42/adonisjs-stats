@@ -45,7 +45,7 @@ async function main() {
   if (json) {
     console.log(results.toJson(verbose))
   } else {
-    console.log(results.toPrettyString())
+    console.log(results.toTable())
 
     if (verbose) {
       console.log('\nDetailed Breakdown:')
@@ -53,8 +53,10 @@ async function main() {
       for (const [componentType, files] of breakdown.entries()) {
         console.log(`\n${componentType}:`)
         for (const file of files) {
+          const classNamesDisplay =
+            file.analysis.classNames.length > 0 ? file.analysis.classNames.join(', ') : 'No classes'
           console.log(
-            `  ${file.filePath} - ${file.analysis.className || 'No class'} (${file.analysis.methods} methods, ${file.analysis.logicalLinesOfCode} LLoC)`
+            `  ${file.filePath} - ${classNamesDisplay} (${file.analysis.methods} methods, ${file.analysis.logicalLinesOfCode} LLoC)`
           )
         }
       }

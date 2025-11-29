@@ -15,7 +15,7 @@ export class ValidatorClassifier implements Classifier {
       filePath.includes('/validators/') || filePath.includes('\\validators\\')
     const endsWithValidator = filePath.toLowerCase().endsWith('validator.ts')
 
-    return (isInValidatorsDir || endsWithValidator) && analysis.className !== null
+    return (isInValidatorsDir || endsWithValidator) && analysis.classNames.length > 0
   }
 
   countsTowardsApplicationCode(): boolean {

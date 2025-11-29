@@ -4,7 +4,7 @@ import { Project, QuoteKind } from 'ts-morph'
 import { StatisticsCollector } from '../statistics_collector.js'
 import { TableFormatter } from '../formatters/table_formatter.js'
 import { JsonFormatter } from '../formatters/json_formatter.js'
-import type { StatisticsSummary, StatsConfig } from '../types.js'
+import type { StatisticsSummary } from '../types.js'
 
 interface AnalysisOptions {
   cwd: string
@@ -13,7 +13,7 @@ interface AnalysisOptions {
 
 interface AnalysisResult {
   summary: StatisticsSummary
-  toPrettyString(): string
+  toTable(): string
   toJson(verbose?: boolean): string
   getDetailedBreakdown(): Promise<Map<string, any[]>>
 }
@@ -47,13 +47,9 @@ export async function runAnalysis(options: AnalysisOptions): Promise<AnalysisRes
     }
   }
 
-  const config: StatsConfig = {
-    customClassifiers,
-  }
-
   const collector = new StatisticsCollector({
     project,
-    config,
+    config: { customClassifiers },
     cwd,
   })
 
@@ -61,7 +57,7 @@ export async function runAnalysis(options: AnalysisOptions): Promise<AnalysisRes
 
   const result: AnalysisResult = {
     summary,
-    toPrettyString(): string {
+    toTable(): string {
       const formatter = new TableFormatter()
       return formatter.format(summary)
     },

@@ -16,7 +16,7 @@ export interface ComponentStats {
  */
 export interface FileAnalysis {
   filePath: string
-  className: string | null
+  classNames: string[]
   methods: number
   linesOfCode: number
   logicalLinesOfCode: number

@@ -15,7 +15,7 @@ export class TestClassifier implements Classifier {
     const endsWithTest = filePath.toLowerCase().endsWith('.test.ts')
     const endsWithSpec = filePath.toLowerCase().endsWith('.spec.ts')
 
-    return (isInTestsDir || endsWithTest || endsWithSpec) && analysis.className !== null
+    return (isInTestsDir || endsWithTest || endsWithSpec) && analysis.classNames.length > 0
   }
 
   countsTowardsApplicationCode(): boolean {

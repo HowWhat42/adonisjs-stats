@@ -1,5 +1,11 @@
 import { CodeAnalyzer } from './analyzer/code_analyzer.js'
-import type { ComponentStats, StatisticsSummary, ClassifiedFile, StatsConfig } from './types.js'
+import type {
+  ComponentStats,
+  StatisticsSummary,
+  ClassifiedFile,
+  StatsConfig,
+  FileAnalysis,
+} from './types.js'
 import { Project } from 'ts-morph'
 import { RouteCounter } from './route_counter.js'
 import { ClassifierRegistry } from './classifier_registry.js'
@@ -24,7 +30,7 @@ export class StatisticsCollector {
   /**
    * Classify a file using all registered classifiers
    */
-  private classifyFile(filePath: string, analysis: any): string | null {
+  private classifyFile(filePath: string, analysis: FileAnalysis): string | null {
     const classifiers = this.#classifierRegistry.getClassifiers()
     for (const classifier of classifiers) {
       if (classifier.satisfies(filePath, analysis)) {
@@ -41,13 +47,16 @@ export class StatisticsCollector {
     await this.#classifierRegistry.registerAll()
 
     const sourceFiles = this.#project.getSourceFiles()
+    const filteredSourceFiles = sourceFiles.filter(
+      (file) => file.getFilePath().includes('app') || file.getFilePath().includes('tests')
+    )
 
     const classifiedFiles: ClassifiedFile[] = []
     const unclassifiedFiles: ClassifiedFile[] = []
 
     const codeAnalyzer = new CodeAnalyzer()
 
-    for (const sourceFile of sourceFiles) {
+    for (const sourceFile of filteredSourceFiles) {
       const filePath = sourceFile.getFilePath()
       const analysis = await codeAnalyzer.analyzeFile(filePath)
       const componentType = this.classifyFile(filePath, analysis)
@@ -80,9 +89,7 @@ export class StatisticsCollector {
         logicalLinesPerMethod: 0,
       }
 
-      if (file.analysis.className) {
-        stats.classes++
-      }
+      stats.classes += file.analysis.classNames.length
       stats.methods += file.analysis.methods
       stats.linesOfCode += file.analysis.linesOfCode
       stats.logicalLinesOfCode += file.analysis.logicalLinesOfCode
