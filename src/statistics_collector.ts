@@ -15,16 +15,14 @@ import { ClassifierRegistry } from './classifier_registry.js'
 export class StatisticsCollector {
   #project: Project
   #config: StatsConfig
-  #cwd: string
   #classifierRegistry: ClassifierRegistry
   #routeCounter: RouteCounter
 
-  constructor(options: { project: Project; config: StatsConfig; cwd: string }) {
+  constructor(options: { project: Project; config: StatsConfig }) {
     this.#project = options.project
     this.#config = options.config
-    this.#cwd = options.cwd
     this.#classifierRegistry = new ClassifierRegistry(this.#config)
-    this.#routeCounter = new RouteCounter(this.#project, this.#cwd)
+    this.#routeCounter = new RouteCounter(this.#project)
   }
 
   /**

@@ -50,7 +50,6 @@ export async function runAnalysis(options: AnalysisOptions): Promise<AnalysisRes
   const collector = new StatisticsCollector({
     project,
     config: { customClassifiers },
-    cwd,
   })
 
   const summary = await collector.collect()
