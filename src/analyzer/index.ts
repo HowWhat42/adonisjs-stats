@@ -52,9 +52,9 @@ export async function runAnalysis(options: AnalysisOptions): Promise<AnalysisRes
   }
 
   const collector = new StatisticsCollector({
-    routes: [] as any[],
     project,
     config,
+    cwd,
   })
 
   const summary = await collector.collect()

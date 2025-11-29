@@ -94,6 +94,7 @@
   },
   "prettier": "@adonisjs/prettier-config",
   "dependencies": {
+    "@ast-grep/napi": "^0.40.0",
     "jiti": "^2.4.2",
     "ts-morph": "^27.0.2"
   }
