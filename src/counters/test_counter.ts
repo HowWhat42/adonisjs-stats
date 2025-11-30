@@ -38,8 +38,6 @@ export class TestCounter {
       processedFiles.add(filePath)
       try {
         const content = sourceFile.getFullText()
-        console.log(filePath)
-        console.log(content)
         testCount += this.countTestsInContent(content)
         testLLoC += this.calculateLogicalLinesOfCode(content)
       } catch (error) {
