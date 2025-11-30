@@ -8,6 +8,7 @@ import type {
 } from './types.js'
 import { Project } from 'ts-morph'
 import { RouteCounter } from './route_counter.js'
+import { TestCounter } from './test_counter.js'
 import { ClassifierRegistry } from './classifier_registry.js'
 /**
  * Collects and aggregates statistics from the codebase
@@ -17,12 +18,14 @@ export class StatisticsCollector {
   #config: StatsConfig
   #classifierRegistry: ClassifierRegistry
   #routeCounter: RouteCounter
+  #testCounter: TestCounter
 
   constructor(options: { project: Project; config: StatsConfig }) {
     this.#project = options.project
     this.#config = options.config
     this.#classifierRegistry = new ClassifierRegistry(this.#config)
     this.#routeCounter = new RouteCounter(this.#project)
+    this.#testCounter = new TestCounter(this.#project)
   }
 
   /**
@@ -101,9 +104,9 @@ export class StatisticsCollector {
     let totalLoC = 0
     let totalLLoC = 0
     let codeLLoC = 0
-    let testLLoC = 0
 
-    for (const [componentType, stats] of componentStatsMap.entries()) {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    for (const [_, stats] of componentStatsMap.entries()) {
       stats.methodsPerClass = stats.classes > 0 ? stats.methods / stats.classes : 0
       stats.logicalLinesPerMethod = stats.methods > 0 ? stats.logicalLinesOfCode / stats.methods : 0
 
@@ -114,12 +117,7 @@ export class StatisticsCollector {
       totalLoC += stats.linesOfCode
       totalLLoC += stats.logicalLinesOfCode
 
-      const classifier = this.#classifierRegistry.findByName(componentType)
-      if (classifier?.countsTowardsTests()) {
-        testLLoC += stats.logicalLinesOfCode
-      } else {
-        codeLLoC += stats.logicalLinesOfCode
-      }
+      codeLLoC += stats.logicalLinesOfCode
     }
 
     components.sort((a, b) => a.name.localeCompare(b.name))
@@ -138,17 +136,15 @@ export class StatisticsCollector {
     }
 
     const routes = await this.#routeCounter.countRoutes()
-
-    const ratio = testLLoC > 0 ? codeLLoC / testLLoC : 0
-    const codeTestRatio = `1:${ratio.toFixed(1)}`
+    const testResult = await this.#testCounter.countTests()
 
     return {
       components,
       total,
       codeLogicalLines: codeLLoC,
-      testLogicalLines: testLLoC,
-      codeTestRatio,
+      testLogicalLines: testResult.logicalLinesOfCode,
       routes,
+      tests: testResult.count,
     }
   }
 

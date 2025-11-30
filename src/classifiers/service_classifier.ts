@@ -16,12 +16,4 @@ export class ServiceClassifier implements Classifier {
 
     return (isInServicesDir || endsWithService) && analysis.classNames.length > 0
   }
-
-  countsTowardsApplicationCode(): boolean {
-    return true
-  }
-
-  countsTowardsTests(): boolean {
-    return false
-  }
 }

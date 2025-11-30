@@ -13,14 +13,4 @@ export interface Classifier {
    * Check if a file satisfies this classifier's criteria
    */
   satisfies(filePath: string, analysis: FileAnalysis): boolean
-
-  /**
-   * Whether this component counts towards application code
-   */
-  countsTowardsApplicationCode(): boolean
-
-  /**
-   * Whether this component counts towards tests
-   */
-  countsTowardsTests(): boolean
 }

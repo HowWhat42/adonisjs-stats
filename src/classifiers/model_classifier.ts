@@ -16,12 +16,4 @@ export class ModelClassifier implements Classifier {
 
     return (isInModelsDir || endsWithModel) && analysis.classNames.length > 0
   }
-
-  countsTowardsApplicationCode(): boolean {
-    return true
-  }
-
-  countsTowardsTests(): boolean {
-    return false
-  }
 }

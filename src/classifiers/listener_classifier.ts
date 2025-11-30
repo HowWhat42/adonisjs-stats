@@ -16,12 +16,4 @@ export class ListenerClassifier implements Classifier {
 
     return (isInListenersDir || endsWithListener) && analysis.classNames.length > 0
   }
-
-  countsTowardsApplicationCode(): boolean {
-    return true
-  }
-
-  countsTowardsTests(): boolean {
-    return false
-  }
 }

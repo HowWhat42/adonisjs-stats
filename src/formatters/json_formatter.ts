@@ -16,8 +16,8 @@ export class JsonFormatter {
           summary: {
             codeLogicalLines: summary.codeLogicalLines,
             testLogicalLines: summary.testLogicalLines,
-            codeTestRatio: summary.codeTestRatio,
             routes: summary.routes,
+            tests: summary.tests,
           },
         },
         null,
@@ -48,8 +48,8 @@ export class JsonFormatter {
         summary: {
           codeLogicalLines: summary.codeLogicalLines,
           testLogicalLines: summary.testLogicalLines,
-          codeTestRatio: summary.codeTestRatio,
           routes: summary.routes,
+          tests: summary.tests,
         },
       },
       null,

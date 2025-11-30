@@ -30,8 +30,8 @@ export interface StatisticsSummary {
   total: ComponentStats
   codeLogicalLines: number
   testLogicalLines: number
-  codeTestRatio: string
   routes: number
+  tests: number
 }
 
 /**

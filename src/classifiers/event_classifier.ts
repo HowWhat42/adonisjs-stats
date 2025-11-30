@@ -16,12 +16,4 @@ export class EventClassifier implements Classifier {
 
     return (isInEventsDir || endsWithEvent) && analysis.classNames.length > 0
   }
-
-  countsTowardsApplicationCode(): boolean {
-    return true
-  }
-
-  countsTowardsTests(): boolean {
-    return false
-  }
 }

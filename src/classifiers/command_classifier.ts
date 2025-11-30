@@ -16,12 +16,4 @@ export class CommandClassifier implements Classifier {
 
     return (isInCommandsDir || endsWithCommand) && analysis.classNames.length > 0
   }
-
-  countsTowardsApplicationCode(): boolean {
-    return true
-  }
-
-  countsTowardsTests(): boolean {
-    return false
-  }
 }

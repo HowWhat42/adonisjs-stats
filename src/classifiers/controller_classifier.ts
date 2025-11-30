@@ -19,12 +19,4 @@ export class ControllerClassifier implements Classifier {
     // We'll check the file path and name patterns since we don't have full AST
     return (isInControllersDir || endsWithController) && analysis.classNames.length > 0
   }
-
-  countsTowardsApplicationCode(): boolean {
-    return true
-  }
-
-  countsTowardsTests(): boolean {
-    return false
-  }
 }
