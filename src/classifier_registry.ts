@@ -3,12 +3,10 @@ import { ControllerClassifier } from './classifiers/controller_classifier.js'
 import { ServiceClassifier } from './classifiers/service_classifier.js'
 import { ModelClassifier } from './classifiers/model_classifier.js'
 import { MiddlewareClassifier } from './classifiers/middleware_classifier.js'
-import { ValidatorClassifier } from './classifiers/validator_classifier.js'
 import { CommandClassifier } from './classifiers/command_classifier.js'
 import { ListenerClassifier } from './classifiers/listener_classifier.js'
 import { EventClassifier } from './classifiers/event_classifier.js'
 import { ExceptionClassifier } from './classifiers/exception_classifier.js'
-import { TestClassifier } from './classifiers/test_classifier.js'
 import type { StatsConfig } from './types.js'
 
 /**
@@ -38,12 +36,10 @@ export class ClassifierRegistry {
     this.classifiers.push(new ServiceClassifier())
     this.classifiers.push(new ModelClassifier())
     this.classifiers.push(new MiddlewareClassifier())
-    this.classifiers.push(new ValidatorClassifier())
     this.classifiers.push(new CommandClassifier())
     this.classifiers.push(new ListenerClassifier())
     this.classifiers.push(new EventClassifier())
     this.classifiers.push(new ExceptionClassifier())
-    this.classifiers.push(new TestClassifier())
   }
 
   /**

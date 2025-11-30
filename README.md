@@ -6,36 +6,54 @@ AdonisJS Stats analyzes your codebase and provides detailed statistics about you
 
 ## Installation
 
-Install the package using npm or your preferred package manager:
+### Standalone Usage (Recommended)
+
+Install the package globally or use it with npx:
 
 ```bash
-node ace add adonisjs-stats
+npm install -g adonisjs-stats
+# or
+npx adonisjs-stats
 ```
 
 ## Usage
 
-After installing, you can generate statistics by running the following Ace command:
+### Standalone Command
+
+Run the standalone command from your AdonisJS project root:
 
 ```bash
-node ace stats
+adonisjs-stats
+```
+
+Or with npx:
+
+```bash
+npx adonisjs-stats
 ```
 
 The statistics are also available as JSON:
 
 ```bash
-node ace stats --json
+adonisjs-stats --json
+# or
+adonisjs-stats -j
 ```
 
 For a more detailed report showing which classes have been grouped into which component, use the `--verbose` option:
 
 ```bash
-node ace stats --verbose
+adonisjs-stats --verbose
+# or
+adonisjs-stats -v
 ```
 
 The verbose option is available for the JSON format as well:
 
 ```bash
-node ace stats --json --verbose
+adonisjs-stats --json --verbose
+# or
+adonisjs-stats -j -v
 ```
 
 ## Output Example
@@ -51,8 +69,6 @@ Listeners           |          8 |          4 |          0.50 |      199 |      
 Middlewares         |         47 |         94 |          2.00 |     1788 |      492 |         5.23
 Models              |         11 |         68 |          6.18 |      930 |      203 |         2.99
 Services            |          3 |         12 |          4.00 |      212 |       34 |         2.83
-Tests               |          6 |         36 |          6.00 |      533 |       65 |         1.81
-Validators          |          7 |         16 |          2.29 |      283 |       38 |         2.38
 Other               |         18 |         44 |          2.44 |     1421 |      382 |         8.68
 Total               |        203 |        602 |          2.97 |    11964 |     3359 |         5.58
 
@@ -69,16 +85,36 @@ The package scans TypeScript files in your project using `ts-morph` and applies 
 | Services     | Files in `app/services/` directory or files ending with `service.ts`          |
 | Models       | Files in `app/models/` directory or files ending with `model.ts`              |
 | Middleware   | Files in `app/middleware/` directory or files ending with `middleware.ts`     |
-| Validators   | Files in `app/validators/` directory or files ending with `validator.ts`       |
 | Commands     | Files in `app/commands/` directory or files ending with `command.ts`           |
 | Listeners    | Files in `app/listeners/` directory or files ending with `listener.ts`        |
 | Events       | Files in `app/events/` directory or files ending with `event.ts`              |
 | Exceptions   | Files in `app/exceptions/` directory or files ending with `exception.ts`       |
-| Tests        | Files in `tests/` directory or files ending with `.test.ts` or `.spec.ts`     |
+
+Note: The package automatically detects test files and separates them from application code in the statistics.
 
 ## Configuration
 
-You can configure the package by publishing the config file:
+### Standalone Usage
+
+For standalone usage, create a `stats.config.ts` file in your project root:
+
+```typescript
+import { defineConfig } from 'adonisjs-stats'
+
+const statsConfig = defineConfig({
+  /**
+   * Custom classifier classes (full import paths)
+   * Example: ['#app/classifiers/custom_classifier']
+   */
+  customClassifiers: [] as string[],
+})
+
+export default statsConfig
+```
+
+### Ace Command Usage
+
+If using the Ace command, you can configure the package by running:
 
 ```bash
 node ace configure adonisjs-stats
@@ -135,8 +171,9 @@ export class RepositoryClassifier implements Classifier {
 
 Then add it to your config:
 
+**For standalone usage (`stats.config.ts`):**
 ```typescript
-// config/stats.ts
+// stats.config.ts
 import { defineConfig } from 'adonisjs-stats'
 import { RepositoryClassifier } from '#app/classifiers/repository_classifier'
 
