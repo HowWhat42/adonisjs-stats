@@ -1,13 +1,13 @@
-import type { Classifier } from './classifiers/base_classifier.js'
-import { ControllerClassifier } from './classifiers/controller_classifier.js'
-import { ServiceClassifier } from './classifiers/service_classifier.js'
-import { ModelClassifier } from './classifiers/model_classifier.js'
-import { MiddlewareClassifier } from './classifiers/middleware_classifier.js'
-import { CommandClassifier } from './classifiers/command_classifier.js'
-import { ListenerClassifier } from './classifiers/listener_classifier.js'
-import { EventClassifier } from './classifiers/event_classifier.js'
-import { ExceptionClassifier } from './classifiers/exception_classifier.js'
-import type { StatsConfig } from './types.js'
+import type { Classifier } from './base_classifier.js'
+import { ControllerClassifier } from './controller_classifier.js'
+import { ServiceClassifier } from './service_classifier.js'
+import { ModelClassifier } from './model_classifier.js'
+import { MiddlewareClassifier } from './middleware_classifier.js'
+import { CommandClassifier } from './command_classifier.js'
+import { ListenerClassifier } from './listener_classifier.js'
+import { EventClassifier } from './event_classifier.js'
+import { ExceptionClassifier } from './exception_classifier.js'
+import type { StatsConfig } from '../types.js'
 
 /**
  * Manages registration and retrieval of classifiers

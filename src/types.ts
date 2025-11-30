@@ -32,6 +32,7 @@ export interface StatisticsSummary {
   testLogicalLines: number
   routes: number
   tests: number
+  validators: number
 }
 
 /**

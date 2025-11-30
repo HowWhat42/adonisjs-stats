@@ -7,9 +7,10 @@ import type {
   FileAnalysis,
 } from './types.js'
 import { Project } from 'ts-morph'
-import { RouteCounter } from './route_counter.js'
-import { TestCounter } from './test_counter.js'
-import { ClassifierRegistry } from './classifier_registry.js'
+import { RouteCounter } from './counters/route_counter.js'
+import { TestCounter } from './counters/test_counter.js'
+import { ValidatorCounter } from './counters/validator_counter.js'
+import { ClassifierRegistry } from './classifiers/classifier_registry.js'
 /**
  * Collects and aggregates statistics from the codebase
  */
@@ -19,6 +20,7 @@ export class StatisticsCollector {
   #classifierRegistry: ClassifierRegistry
   #routeCounter: RouteCounter
   #testCounter: TestCounter
+  #validatorCounter: ValidatorCounter
 
   constructor(options: { project: Project; config: StatsConfig }) {
     this.#project = options.project
@@ -26,6 +28,7 @@ export class StatisticsCollector {
     this.#classifierRegistry = new ClassifierRegistry(this.#config)
     this.#routeCounter = new RouteCounter(this.#project)
     this.#testCounter = new TestCounter(this.#project)
+    this.#validatorCounter = new ValidatorCounter(this.#project)
   }
 
   /**
@@ -137,6 +140,7 @@ export class StatisticsCollector {
 
     const routes = await this.#routeCounter.countRoutes()
     const testResult = await this.#testCounter.countTests()
+    const validators = await this.#validatorCounter.countValidators()
 
     return {
       components,
@@ -145,6 +149,7 @@ export class StatisticsCollector {
       testLogicalLines: testResult.logicalLinesOfCode,
       routes,
       tests: testResult.count,
+      validators,
     }
   }
 
