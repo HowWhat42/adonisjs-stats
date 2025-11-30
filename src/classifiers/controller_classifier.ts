@@ -17,14 +17,6 @@ export class ControllerClassifier implements Classifier {
 
     // Check if class extends BaseController or has controller-like patterns
     // We'll check the file path and name patterns since we don't have full AST
-    return (isInControllersDir || endsWithController) && analysis.className !== null
-  }
-
-  countsTowardsApplicationCode(): boolean {
-    return true
-  }
-
-  countsTowardsTests(): boolean {
-    return false
+    return (isInControllersDir || endsWithController) && analysis.classNames.length > 0
   }
 }

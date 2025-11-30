@@ -1,4 +1,5 @@
 import { readFile } from 'node:fs/promises'
+import { parse, Lang, SgNode, kind } from '@ast-grep/napi'
 import type { FileAnalysis } from '../types.js'
 
 /**
@@ -20,7 +21,6 @@ export class CodeAnalyzer {
     const lines = content.split('\n')
     const linesOfCode = lines.length
 
-    // Count logical lines (excluding comments and empty lines)
     let logicalLinesOfCode = 0
     let inMultiLineComment = false
 
@@ -51,16 +51,6 @@ export class CodeAnalyzer {
         continue
       }
 
-      if (trimmed.includes('*/')) {
-        inMultiLineComment = false
-        // Check if there's code before the comment end
-        const beforeComment = trimmed.split('*/')[0]?.trim()
-        if (beforeComment && beforeComment !== '') {
-          logicalLinesOfCode++
-        }
-        continue
-      }
-
       if (inMultiLineComment) {
         continue
       }
@@ -68,14 +58,12 @@ export class CodeAnalyzer {
       logicalLinesOfCode++
     }
 
-    // Extract class name and count methods using regex
-    // This is a simpler approach than full AST parsing
-    const className = this.extractClassName(content)
+    const classNames = this.extractClassNames(content)
     const methods = this.countMethods(content)
 
     return {
       filePath,
-      className,
+      classNames,
       methods,
       linesOfCode,
       logicalLinesOfCode,
@@ -83,32 +71,68 @@ export class CodeAnalyzer {
   }
 
   /**
-   * Extract class name from file content
+   * Extract all class names from file content using AST grep
    */
-  private extractClassName(content: string): string | null {
-    // Match: export class ClassName or class ClassName
-    const classMatch = content.match(
-      /(?:export\s+)?(?:default\s+)?class\s+([A-Za-z_$][A-Za-z0-9_$]*)/m
-    )
-    return classMatch ? classMatch[1] : null
+  private extractClassNames(content: string): string[] {
+    try {
+      const ast = parse(Lang.TypeScript, content)
+      const root = ast.root()
+      const classNodes = root.findAll(kind(Lang.TypeScript, 'class_declaration'))
+
+      if (classNodes.length === 0) {
+        return []
+      }
+
+      // Helper function to extract class name from a node
+      const extractNameFromNode = (node: SgNode): string | null => {
+        try {
+          const nameNodes = node.findAll(kind(Lang.TypeScript, 'type_identifier'))
+          if (nameNodes.length > 0) {
+            return nameNodes[0].text()
+          }
+        } catch {
+          return null
+        }
+
+        return null
+      }
+
+      const classNames: string[] = []
+
+      for (const classNode of classNodes) {
+        const className = extractNameFromNode(classNode)
+        if (className) {
+          classNames.push(className)
+        }
+      }
+
+      return classNames
+    } catch (error) {
+      return []
+    }
   }
 
   /**
-   * Count methods in a class
+   * Count methods in a class using AST grep
    */
   private countMethods(content: string): number {
-    // Count method definitions (including async, private, protected, public, static)
-    // This regex matches: methodName(, async methodName(, private methodName(, etc.
-    const methodRegex =
-      /(?:(?:public|private|protected|static|async)\s+)*(?:[A-Za-z_$][A-Za-z0-9_$]*\s*)?[A-Za-z_$][A-Za-z0-9_$]*\s*\([^)]*\)\s*(?::\s*[^{]*)?\{/g
+    try {
+      const ast = parse(Lang.TypeScript, content)
+      const root = ast.root()
 
-    const matches = content.match(methodRegex)
-    if (!matches) {
+      let count = 0
+      const arrowFunctionDeclarations = root.findAll(kind(Lang.TypeScript, 'arrow_function'))
+      count += arrowFunctionDeclarations.length
+
+      const methodDefinitions = root.findAll(kind(Lang.TypeScript, 'method_definition'))
+      count += methodDefinitions.length
+
+      const functionDeclarations = root.findAll(kind(Lang.TypeScript, 'function_declaration'))
+      count += functionDeclarations.length
+
+      return count
+    } catch (error) {
       return 0
     }
-
-    // Filter out constructors and getters/setters if needed
-    // For now, we'll count all methods including constructors
-    return matches.length
   }
 }

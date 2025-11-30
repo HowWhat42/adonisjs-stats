@@ -14,14 +14,6 @@ export class CommandClassifier implements Classifier {
     const isInCommandsDir = filePath.includes('/commands/') || filePath.includes('\\commands\\')
     const endsWithCommand = filePath.toLowerCase().endsWith('command.ts')
 
-    return (isInCommandsDir || endsWithCommand) && analysis.className !== null
-  }
-
-  countsTowardsApplicationCode(): boolean {
-    return true
-  }
-
-  countsTowardsTests(): boolean {
-    return false
+    return (isInCommandsDir || endsWithCommand) && analysis.classNames.length > 0
   }
 }

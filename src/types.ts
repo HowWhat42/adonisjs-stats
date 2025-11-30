@@ -16,7 +16,7 @@ export interface ComponentStats {
  */
 export interface FileAnalysis {
   filePath: string
-  className: string | null
+  classNames: string[]
   methods: number
   linesOfCode: number
   logicalLinesOfCode: number
@@ -30,8 +30,9 @@ export interface StatisticsSummary {
   total: ComponentStats
   codeLogicalLines: number
   testLogicalLines: number
-  codeTestRatio: string
   routes: number
+  tests: number
+  validators: number
 }
 
 /**

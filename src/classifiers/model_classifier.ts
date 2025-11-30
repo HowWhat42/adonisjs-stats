@@ -14,14 +14,6 @@ export class ModelClassifier implements Classifier {
     const isInModelsDir = filePath.includes('/models/') || filePath.includes('\\models\\')
     const endsWithModel = filePath.toLowerCase().endsWith('model.ts')
 
-    return (isInModelsDir || endsWithModel) && analysis.className !== null
-  }
-
-  countsTowardsApplicationCode(): boolean {
-    return true
-  }
-
-  countsTowardsTests(): boolean {
-    return false
+    return (isInModelsDir || endsWithModel) && analysis.classNames.length > 0
   }
 }

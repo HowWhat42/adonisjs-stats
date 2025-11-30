@@ -72,7 +72,7 @@ export class TableFormatter {
 
     // Summary footer
     lines.push('')
-    const summaryLine = `Code LLoC: ${summary.codeLogicalLines} • Test LLoC: ${summary.testLogicalLines} • Code/Test Ratio: ${summary.codeTestRatio} • Routes: ${summary.routes}`
+    const summaryLine = `Code LLoC: ${summary.codeLogicalLines} • Test LLoC: ${summary.testLogicalLines} • Routes: ${summary.routes} • Tests: ${summary.tests} • Validators: ${summary.validators}`
 
     lines.push(summaryLine)
 

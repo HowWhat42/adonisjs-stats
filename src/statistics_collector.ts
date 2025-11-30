@@ -1,77 +1,42 @@
 import { CodeAnalyzer } from './analyzer/code_analyzer.js'
-import { ControllerClassifier } from './classifiers/controller_classifier.js'
-import { ServiceClassifier } from './classifiers/service_classifier.js'
-import { ModelClassifier } from './classifiers/model_classifier.js'
-import { MiddlewareClassifier } from './classifiers/middleware_classifier.js'
-import { ValidatorClassifier } from './classifiers/validator_classifier.js'
-import { CommandClassifier } from './classifiers/command_classifier.js'
-import { ListenerClassifier } from './classifiers/listener_classifier.js'
-import { EventClassifier } from './classifiers/event_classifier.js'
-import { ExceptionClassifier } from './classifiers/exception_classifier.js'
-import { TestClassifier } from './classifiers/test_classifier.js'
-import type { Classifier } from './classifiers/base_classifier.js'
-import type { ComponentStats, StatisticsSummary, ClassifiedFile, StatsConfig } from './types.js'
-import { RouteJSON } from '@adonisjs/core/types/http'
+import type {
+  ComponentStats,
+  StatisticsSummary,
+  ClassifiedFile,
+  StatsConfig,
+  FileAnalysis,
+} from './types.js'
 import { Project } from 'ts-morph'
+import { RouteCounter } from './counters/route_counter.js'
+import { TestCounter } from './counters/test_counter.js'
+import { ValidatorCounter } from './counters/validator_counter.js'
+import { ClassifierRegistry } from './classifiers/classifier_registry.js'
 /**
  * Collects and aggregates statistics from the codebase
  */
 export class StatisticsCollector {
-  private classifiers: Classifier[] = []
-
-  #routes: Array<RouteJSON>
   #project: Project
   #config: StatsConfig
-  constructor(options: { routes: Array<RouteJSON>; project: Project; config: StatsConfig }) {
-    this.#routes = options.routes
+  #classifierRegistry: ClassifierRegistry
+  #routeCounter: RouteCounter
+  #testCounter: TestCounter
+  #validatorCounter: ValidatorCounter
+
+  constructor(options: { project: Project; config: StatsConfig }) {
     this.#project = options.project
     this.#config = options.config
-  }
-
-  /**
-   * Register custom classifiers (called during collect)
-   */
-  private async registerCustomClassifiers(): Promise<void> {
-    if (this.#config.customClassifiers.length === 0) {
-      return
-    }
-
-    for (const classifierPath of this.#config.customClassifiers) {
-      try {
-        // Dynamic import of custom classifier
-        const classifierModule = await import(classifierPath)
-        const ClassifierClass = classifierModule.default || Object.values(classifierModule)[0]
-        if (ClassifierClass && typeof ClassifierClass === 'function') {
-          this.classifiers.push(new ClassifierClass())
-        }
-      } catch {
-        // Silently fail - custom classifiers are optional
-      }
-    }
-  }
-
-  /**
-   * Register the default classifiers
-   */
-  private async registerClassifiers(): Promise<void> {
-    this.classifiers.push(new ControllerClassifier())
-    this.classifiers.push(new ServiceClassifier())
-    this.classifiers.push(new ModelClassifier())
-    this.classifiers.push(new MiddlewareClassifier())
-    this.classifiers.push(new ValidatorClassifier())
-    this.classifiers.push(new CommandClassifier())
-    this.classifiers.push(new ListenerClassifier())
-    this.classifiers.push(new EventClassifier())
-    this.classifiers.push(new ExceptionClassifier())
-    this.classifiers.push(new TestClassifier())
-    this.registerCustomClassifiers()
+    this.#classifierRegistry = new ClassifierRegistry(this.#config)
+    this.#routeCounter = new RouteCounter(this.#project)
+    this.#testCounter = new TestCounter(this.#project)
+    this.#validatorCounter = new ValidatorCounter(this.#project)
   }
 
   /**
    * Classify a file using all registered classifiers
    */
-  private classifyFile(filePath: string, analysis: any): string | null {
-    for (const classifier of this.classifiers) {
+  private classifyFile(filePath: string, analysis: FileAnalysis): string | null {
+    const classifiers = this.#classifierRegistry.getClassifiers()
+    for (const classifier of classifiers) {
       if (classifier.satisfies(filePath, analysis)) {
         return classifier.name()
       }
@@ -83,17 +48,19 @@ export class StatisticsCollector {
    * Collect all statistics
    */
   async collect(): Promise<StatisticsSummary> {
-    this.registerClassifiers()
+    await this.#classifierRegistry.registerAll()
 
     const sourceFiles = this.#project.getSourceFiles()
+    const filteredSourceFiles = sourceFiles.filter(
+      (file) => file.getFilePath().includes('app') || file.getFilePath().includes('tests')
+    )
 
-    // Analyze and classify files
     const classifiedFiles: ClassifiedFile[] = []
     const unclassifiedFiles: ClassifiedFile[] = []
 
     const codeAnalyzer = new CodeAnalyzer()
 
-    for (const sourceFile of sourceFiles) {
+    for (const sourceFile of filteredSourceFiles) {
       const filePath = sourceFile.getFilePath()
       const analysis = await codeAnalyzer.analyzeFile(filePath)
       const componentType = this.classifyFile(filePath, analysis)
@@ -111,10 +78,8 @@ export class StatisticsCollector {
       }
     }
 
-    // Add unclassified files as "Other"
     classifiedFiles.push(...unclassifiedFiles)
 
-    // Aggregate statistics by component type
     const componentStatsMap = new Map<string, ComponentStats>()
 
     for (const file of classifiedFiles) {
@@ -128,9 +93,7 @@ export class StatisticsCollector {
         logicalLinesPerMethod: 0,
       }
 
-      if (file.analysis.className) {
-        stats.classes++
-      }
+      stats.classes += file.analysis.classNames.length
       stats.methods += file.analysis.methods
       stats.linesOfCode += file.analysis.linesOfCode
       stats.logicalLinesOfCode += file.analysis.logicalLinesOfCode
@@ -138,41 +101,30 @@ export class StatisticsCollector {
       componentStatsMap.set(file.componentType, stats)
     }
 
-    // // Calculate ratios and create component stats array
     const components: ComponentStats[] = []
     let totalClasses = 0
     let totalMethods = 0
     let totalLoC = 0
     let totalLLoC = 0
     let codeLLoC = 0
-    let testLLoC = 0
 
-    for (const [componentType, stats] of componentStatsMap.entries()) {
-      // Calculate ratios
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    for (const [_, stats] of componentStatsMap.entries()) {
       stats.methodsPerClass = stats.classes > 0 ? stats.methods / stats.classes : 0
       stats.logicalLinesPerMethod = stats.methods > 0 ? stats.logicalLinesOfCode / stats.methods : 0
 
       components.push(stats)
 
-      // Accumulate totals
       totalClasses += stats.classes
       totalMethods += stats.methods
       totalLoC += stats.linesOfCode
       totalLLoC += stats.logicalLinesOfCode
 
-      // Separate code and test LLoC
-      const classifier = this.classifiers.find((c) => c.name() === componentType)
-      if (classifier?.countsTowardsTests()) {
-        testLLoC += stats.logicalLinesOfCode
-      } else {
-        codeLLoC += stats.logicalLinesOfCode
-      }
+      codeLLoC += stats.logicalLinesOfCode
     }
 
-    // Sort components by name
     components.sort((a, b) => a.name.localeCompare(b.name))
 
-    // Calculate total ratios
     const totalMethodsPerClass = totalClasses > 0 ? totalMethods / totalClasses : 0
     const totalLLoCPerMethod = totalMethods > 0 ? totalLLoC / totalMethods : 0
 
@@ -186,20 +138,18 @@ export class StatisticsCollector {
       logicalLinesPerMethod: totalLLoCPerMethod,
     }
 
-    // Count routes
-    const routes = this.#routes.length
-
-    // Calculate code/test ratio
-    const ratio = testLLoC > 0 ? codeLLoC / testLLoC : 0
-    const codeTestRatio = `1:${ratio.toFixed(1)}`
+    const routes = await this.#routeCounter.countRoutes()
+    const testResult = await this.#testCounter.countTests()
+    const validators = await this.#validatorCounter.countValidators()
 
     return {
       components,
       total,
       codeLogicalLines: codeLLoC,
-      testLogicalLines: testLLoC,
-      codeTestRatio,
+      testLogicalLines: testResult.logicalLinesOfCode,
       routes,
+      tests: testResult.count,
+      validators,
     }
   }
 
@@ -207,9 +157,7 @@ export class StatisticsCollector {
    * Get detailed file breakdown (for verbose mode)
    */
   async getDetailedBreakdown(): Promise<Map<string, ClassifiedFile[]>> {
-    // Register custom classifiers if any
-    await this.registerCustomClassifiers()
-    this.registerClassifiers()
+    await this.#classifierRegistry.registerAll()
 
     const sourceFiles = this.#project.getSourceFiles()
     const breakdown = new Map<string, ClassifiedFile[]>()

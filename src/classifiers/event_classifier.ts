@@ -14,14 +14,6 @@ export class EventClassifier implements Classifier {
     const isInEventsDir = filePath.includes('/events/') || filePath.includes('\\events\\')
     const endsWithEvent = filePath.toLowerCase().endsWith('event.ts')
 
-    return (isInEventsDir || endsWithEvent) && analysis.className !== null
-  }
-
-  countsTowardsApplicationCode(): boolean {
-    return true
-  }
-
-  countsTowardsTests(): boolean {
-    return false
+    return (isInEventsDir || endsWithEvent) && analysis.classNames.length > 0
   }
 }

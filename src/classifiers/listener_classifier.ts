@@ -14,14 +14,6 @@ export class ListenerClassifier implements Classifier {
     const isInListenersDir = filePath.includes('/listeners/') || filePath.includes('\\listeners\\')
     const endsWithListener = filePath.toLowerCase().endsWith('listener.ts')
 
-    return (isInListenersDir || endsWithListener) && analysis.className !== null
-  }
-
-  countsTowardsApplicationCode(): boolean {
-    return true
-  }
-
-  countsTowardsTests(): boolean {
-    return false
+    return (isInListenersDir || endsWithListener) && analysis.classNames.length > 0
   }
 }
