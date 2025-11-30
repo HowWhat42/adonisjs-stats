@@ -48,12 +48,12 @@ export class RouteCounter {
       const root = ast.root()
 
       const routePatterns = [
-        'var.on($$$_)',
-        '$VAR.get($$$_)',
-        '$VAR.post($$$_)',
-        '$VAR.put($$$_)',
-        '$VAR.patch($$$_)',
-        '$VAR.delete($$$_)',
+        '$VAR.on($$$)',
+        '$VAR.get($$$)',
+        '$VAR.post($$$)',
+        '$VAR.put($$$)',
+        '$VAR.patch($$$)',
+        '$VAR.delete($$$)',
 
         // Girouette routes patterns
         '@Post($$$_)',
