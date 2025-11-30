@@ -48,27 +48,12 @@ export class RouteCounter {
       const root = ast.root()
 
       const routePatterns = [
-        // Pattern: router.get('/path', () => { ... })
-        '$VAR.on($_)',
-        '$VAR.get($_, $_)',
-        '$VAR.post($_, $_)',
-        '$VAR.put($_, $_)',
-        '$VAR.patch($_, $_)',
-        '$VAR.delete($_, $_)',
-        '$VAR.head($_, $_)',
-        '$VAR.options($_, $_)',
-        '$VAR.any($_, $_)',
-        '$VAR.match($_, $_, $_)',
-        '$VAR.resource($_, $_)',
-        // Routes with only path (no handler) - these are less common but possible
-        '$VAR.get($_)',
-        '$VAR.post($_)',
-        '$VAR.put($_)',
-        '$VAR.patch($_)',
-        '$VAR.delete($_)',
-        '$VAR.head($_)',
-        '$VAR.options($_)',
-        '$VAR.any($_)',
+        'var.on($$$_)',
+        '$VAR.get($$$_)',
+        '$VAR.post($$$_)',
+        '$VAR.put($$$_)',
+        '$VAR.patch($$$_)',
+        '$VAR.delete($$$_)',
 
         // Girouette routes patterns
         '@Post($$$_)',
@@ -76,10 +61,6 @@ export class RouteCounter {
         '@Put($$$_)',
         '@Patch($$$_)',
         '@Delete($$$_)',
-        '@Head($$$_)',
-        '@Options($$$_)',
-        '@Any($$$)',
-        '@Match($$$_)',
         '@Resource($$$_)',
       ]
 
